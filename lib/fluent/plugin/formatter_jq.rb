@@ -18,6 +18,8 @@ require "fluent/plugin/formatter"
 module Fluent
   module Plugin
     class JqFormatter < Fluent::Plugin::Formatter
+      EMPTY_STRING = ''.freeze
+
       Fluent::Plugin.register_formatter("jq", self)
 
       desc 'The jq program used to format income events. The result of the program should only return one item of any kind (a string, an array, an object, etc.). If it returns multiple items, only the first will be used.'
@@ -47,7 +49,7 @@ module Fluent
 	log.error msg
 	case @on_error
 	when :skip
-	  return ''
+	  return EMPTY_STRING
 	when :ignore
 	  return record.to_json
 	when :raise_error
