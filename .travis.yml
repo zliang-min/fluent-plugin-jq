@@ -4,6 +4,8 @@ services:
 language: ruby
 install: echo skip install
 script: make test
+before_deploy:
+  - gem build fluent-plugin-jq.gemspec
 deploy:
   provider: rubygems
   gemspec: fluent-plugin-jq.gemspec
