@@ -4,7 +4,7 @@ Bundler::GemHelper.install_tasks
 require "rake/testtask"
 
 task :build_example do
-  sh 'docker build -t fluent-plugin-jq-example .'
+  sh 'docker build -t fluent-plugin-jq-example -f example/Dockerfile .'
 end
 
 task :rm_example do

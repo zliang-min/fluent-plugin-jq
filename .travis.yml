@@ -1,9 +1,5 @@
-language: ruby
-rvm:
- - 2.3
- - 2.4
- - 2.5
-sudo: true
-before_install:
-  - sudo apt-get -qq update
-  - sudo apt-get install -y jq
+sudo: required
+services:
+  - docker
+language: c
+script: make test

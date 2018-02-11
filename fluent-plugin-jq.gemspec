@@ -12,11 +12,9 @@ Gem::Specification.new do |spec|
   spec.homepage      = "https://github.com/Gimi/fluent-plugin-jq"
   spec.license       = "Apache-2.0"
 
-  test_files, files  = `git ls-files -z`.split("\x0").partition do |f|
-    f.match(%r{^(test|spec|features)/})
-  end
   spec.files         = Dir.glob('*').select { |f| not (File.directory?(f) || f.start_with?('.')) } +
-    Dir.glob('lib/**/**.rb')
+    Dir.glob('lib/**/**.rb') +
+    Dir.glob('example/**/**')
   spec.test_files    = Dir.glob('test/**/**.rb')
   spec.require_paths = ["lib"]
 
