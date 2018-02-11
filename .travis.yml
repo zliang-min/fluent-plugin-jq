@@ -1,5 +1,12 @@
 sudo: required
 services:
-  - docker
+- docker
 language: c
 script: make test
+deploy:
+  provider: rubygems
+  gemspec: fluent-plugin-jq.gemspec
+  on:
+    tags: true
+  api_key:
+    secure: IbodSDADga4kO1AoaMcbUQDWA+p/OGFvvSEuA/DCxXyDalLCPkIzFVRVqtDAGL1RUwIjrAE+3cWwSn6T2+LRg2/JsVydUYPdMhnixVEUf86aWBVzIeGrQ/voN2HmGO1rfI0aE9kCxJVwutDUVEGegE+SHxAm1xHEH7sgoR43E3rINsd5MKVu1u/zL7k6BImJhYlLxfr3DT86XeBQ2U5qWuocO1ebS6NY9wQTe8ko+Wsrk3okN0y31T2O7awxTX5FRISSGHdA1xvjbNfK7Jjad3O1gSAWxZJUZuDaLw9d+pjatDAg6Ev89q5dXsEUPFb4BZdtIu0Bb+bZ3DSGwtGMKdlyvU52G7Cb/vEb6sZARyrRIAd32vDECGkfHs/1W4EmxCw0u1B0SWQqlLRBNZ5TdADFvVxqtTnQ2BG3+ly+2Wyi1Wl2ukWqz/cZ5nZmXwzYRp5UKMO21GRRqKQ3dBYuP6CBJdeT60+DxuqEAq1dkvh3I2LRNz5f2cGp3PTfw5eubaVP1jYD/qiiYQTtW1tfR3YFZsQFWCfWj6zBe/yUHVONxn8XPOp8CrghAa3lYnZFfPvF1naHv+PTym8WttOduWcfHajLytieEbxvu985iI4sdzCE7qFiecJEwnFKBZPMQnonR6NcuHq31/MlMdF+EoaVGC/YvgMTTx8qVN1qbEI=
