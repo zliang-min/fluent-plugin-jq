@@ -1,4 +1,7 @@
-# fluent-plugin-jq [![Build Status](https://travis-ci.org/Gimi/fluent-plugin-jq.svg?branch=master)](https://travis-ci.org/Gimi/fluent-plugin-jq)
+# fluent-plugin-jq
+
+[![Gem Version](https://badge.fury.io/rb/fluent-plugin-jq.svg)](https://badge.fury.io/rb/fluent-plugin-jq)
+[![Build Status](https://travis-ci.org/Gimi/fluent-plugin-jq.svg?branch=master)](https://travis-ci.org/Gimi/fluent-plugin-jq)
 
 [Fluentd](https://fluentd.org/) formatter plugin to format events with [jq](https://stedolan.github.io/jq/).
 
