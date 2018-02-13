@@ -4,6 +4,8 @@
 
 ## Installation
 
+Before you install this plugin, please make sure that `libjq` has been installed on your machine. For example, in alpine linux, debian, and ubuntu, you can install `libjq` by installing the `libjq-dev` package.
+
 ### RubyGems
 
 ```
