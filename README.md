@@ -7,7 +7,7 @@
 
 ## Installation
 
-Before you install this plugin, please make sure that `libjq` has been installed on your machine. For example, in alpine linux, debian, and ubuntu, you can install `libjq` by installing the `libjq-dev` package.
+Before you install this plugin, please make sure that `libjq` has been installed on your machine. For example, it's called `jq-dev` on alpine linux; while on debian, and ubuntu, you will find it as the `libjq-dev` package.
 
 ### RubyGems
 
