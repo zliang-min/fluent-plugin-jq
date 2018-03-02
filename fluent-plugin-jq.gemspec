@@ -3,12 +3,12 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |spec|
   spec.name    = "fluent-plugin-jq"
-  spec.version = "0.1.0"
+  spec.version = "0.2.0"
   spec.authors = ["Zhimin (Gimi) Liang"]
   spec.email   = ["liang.gimi@gmail.com"]
 
-  spec.summary       = %q{Fluentd formatter plugin uses the jq engine.}
-  spec.description   = %q{A Fluentd formatter plugin allows you to format events using jq filters.}
+  spec.summary       = %q{Fluentd plugins uses the jq engine.}
+  spec.description   = %q{fluent-plungin-jq is a collection of fluentd plugins which uses the jq engine to transform or format fluentd events.}
   spec.homepage      = "https://github.com/Gimi/fluent-plugin-jq"
   spec.license       = "Apache-2.0"
 
@@ -25,4 +25,5 @@ Gem::Specification.new do |spec|
 
   spec.add_runtime_dependency "fluentd", [">= 0.14.10", "< 2"]
   spec.add_runtime_dependency "ruby-jq", "~> 0.1"
+  spec.add_runtime_dependency "multi_json", "~> 1.13"
 end
