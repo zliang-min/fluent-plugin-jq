@@ -41,13 +41,17 @@ module Fluent
 	@jq = @jq_program unless @jq
 	raise Fluent::ConfigError, "jq is required." unless @jq
 
-	JQ::Core.new @jq
+	@jq_filter = JQ::Core.new @jq
       rescue JQ::Error
 	raise Fluent::ConfigError, "Could not parse jq filter #{@jq}, error: #{$!.message}"
       end
 
       def format(tag, time, record)
-	item = JQ(MultiJson.dump(record)).search(@jq).first
+	item = [].tap { |buf|
+	  @jq_filter.update(MultiJson.dump(record), false) { |r|
+	    buf << MultiJson.load("[#{r}]").first
+	  }
+	}.first
 	return item if item.instance_of?(String)
 	MultiJson.dump item
       rescue JQ::Error

@@ -31,13 +31,17 @@ module Fluent
 
       def configure(conf)
 	super
-	JQ::Core.new @jq
+	@jq_filter = JQ::Core.new @jq
       rescue JQ::Error
 	raise Fluent::ConfigError, "Could not parse jq filter: #{@jq}, error: #{$!.message}"
       end
 
       def filter(tag, time, record)
-	new_record = JQ(MultiJson.dump(tag: tag, time: time, record: record)).search(@jq).first
+	new_record = [].tap { |buf|
+	  @jq_filter.update(MultiJson.dump(tag: tag, time: time, record: record), false) { |r|
+	    buf << MultiJson.load("[#{r}]").first
+	  }
+	}.first
 	return new_record if new_record.is_a?(Hash)
 
 	log.error "jq filter #{@jq} did not return a hash, skip this record."

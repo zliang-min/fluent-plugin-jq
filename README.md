@@ -3,9 +3,10 @@
 [![Gem Version](https://badge.fury.io/rb/fluent-plugin-jq.svg)](https://badge.fury.io/rb/fluent-plugin-jq)
 [![Build Status](https://travis-ci.org/Gimi/fluent-plugin-jq.svg?branch=master)](https://travis-ci.org/Gimi/fluent-plugin-jq)
 
-A collection of [Fluentd](https://fluentd.org/) plugins use [jq](https://stedolan.github.io/jq/). It now contains two plugins:
+A collection of [Fluentd](https://fluentd.org/) plugins use [jq](https://stedolan.github.io/jq/). It now contains three plugins:
 * `jq` formatter - a formatter plugin formats inputs using jq filters.
 * `jq_transformer` - a filter plugin transform inputs.
+* `jq` output - a output plugin uses jq filter to generate new events.
 
 ## Installation
 
@@ -113,6 +114,48 @@ This must be `jq_transformer`.
 ##### jq (string) (required)
 
 The jq filter used to transform the input. The result of the filter should return an object. If after applying the transforming the new event is not an object (a hash), the event will be dropped.
+
+### `jq` Output
+
+#### Example
+
+```
+<match raw.data>
+  @type jq
+  jq .record | to_entries
+  remove_tag_prefix raw
+</filter>
+```
+
+The above example will generate one event for each key-value pair in each input, and then tag it with "data" ("raw." is removed), and send it back to router. For example, given an input like
+
+```javascript
+{"logLevel": "info", "log": "this is an example."}
+```
+
+It generates two new events:
+
+```javascript
+{"key": "logLevel", "value": "info"}
+{"key": log", "value": "this is an example."}
+```
+
+#### Parameters
+
+##### @type (string) (required)
+
+This must be `jq`.
+
+##### jq (string) (required)
+
+The jq filter used to generate new events. The result of the filter should return an object or an array of objects. New events will be put back to router so that they will be processed again.
+
+##### remove_tag_prefix (string) (optional)
+
+The prefix to remove from the input tag when outputting a new event. A prefix has to be a complete tag part.
+Example: If `remove_tag_prefix` is set to 'foo', the input tag foo.bar.baz is transformed to bar.baz and the input tag 'foofoo.bar' is not modified.
+
+Default value: `""`.
 
 ### Built-in Example
 

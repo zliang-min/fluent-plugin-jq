@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    fluent-plugin-jq (0.2.0)
+    fluent-plugin-jq (0.3.0)
       fluentd (>= 0.14.10, < 2)
       multi_json (~> 1.13)
       ruby-jq (~> 0.1)
