@@ -15,4 +15,5 @@ RUN apk update \
  && apk del .build-deps \
  && rm -rf /var/cache/apk/* \
  && cp /tmp/fluent-plugin-jq/example/fluent.conf /fluentd/etc/ \
+ && cp /tmp/fluent-plugin-jq/example/statsd.sample / \
  && rm -rf /tmp/* /var/tmp/* /usr/lib/ruby/gems/*/cache/*.gem

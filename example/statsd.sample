@@ -1,0 +1,4 @@
+cpu.usage:10|g,cpu.free:90|g
+memory.usage:100|g,memory.rss:80|g
+network.rx:12.34|g,network.tx:56.78|g
+login.success:100|c,login.failed:20|c

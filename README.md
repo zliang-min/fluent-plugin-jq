@@ -3,10 +3,11 @@
 [![Gem Version](https://badge.fury.io/rb/fluent-plugin-jq.svg)](https://badge.fury.io/rb/fluent-plugin-jq)
 [![Build Status](https://travis-ci.org/Gimi/fluent-plugin-jq.svg?branch=master)](https://travis-ci.org/Gimi/fluent-plugin-jq)
 
-A collection of [Fluentd](https://fluentd.org/) plugins use [jq](https://stedolan.github.io/jq/). It now contains three plugins:
+A collection of [Fluentd](https://fluentd.org/) plugins use [jq](https://stedolan.github.io/jq/). It now contains four plugins:
 * `jq` formatter - a formatter plugin formats inputs using jq filters.
 * `jq_transformer` - a filter plugin transform inputs.
 * `jq` output - a output plugin uses jq filter to generate new events.
+* `jq` parser - a parser plugin uses jq filter to parse inputs.
 
 ## Installation
 
@@ -137,7 +138,7 @@ It generates two new events:
 
 ```javascript
 {"key": "logLevel", "value": "info"}
-{"key": log", "value": "this is an example."}
+{"key": "log", "value": "this is an example."}
 ```
 
 #### Parameters
@@ -156,6 +157,46 @@ The prefix to remove from the input tag when outputting a new event. A prefix ha
 Example: If `remove_tag_prefix` is set to 'foo', the input tag foo.bar.baz is transformed to bar.baz and the input tag 'foofoo.bar' is not modified.
 
 Default value: `""`.
+
+### `jq` Parser
+
+#### Example
+
+```
+<source>
+  @type tail
+  tag tail.*
+  path /some/path/*
+  <parse>
+    @type jq
+    jq 'split(",") | reduce .[] as $item ({}; ($item | split(":")) as $pair | .[$pair[0]] = ($pair[1][:-2] | tonumber))'
+  </parse>
+</source>
+```
+
+Given inputs like
+
+```
+cpu.usage:10|g,cpu.free:90|g
+memory.usage:100|g,memory.rss:80|g
+```
+
+It generates records:
+
+```javascript
+{"cpu.usage": 10, "cpu.free": 90}
+{"memory.usage": 100, "memory.rss": 80}
+```
+
+#### Parameters
+
+##### @type (string) (required)
+
+This must be `jq`.
+
+##### jq (string) (required)
+
+The jq filter used to parse inputs. The result of the filter must return an object, otherwise the result will be dropped.
 
 ### Built-in Example
 
