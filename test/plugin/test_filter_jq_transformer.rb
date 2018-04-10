@@ -9,6 +9,10 @@ class JqTransformerFilterTest < Test::Unit::TestCase
     Fluent::Test.setup
   end
 
+  teardown do
+    @driver.instance.shutdown if @driver
+  end
+
   test "it should require jq" do
     assert_raise(Fluent::ConfigError) { create_driver '' }
   end
@@ -65,6 +69,6 @@ class JqTransformerFilterTest < Test::Unit::TestCase
   private
 
   def create_driver(conf)
-    Fluent::Test::Driver::Filter.new(Fluent::Plugin::JqTransformerFilter).configure(conf)
+    @driver = Fluent::Test::Driver::Filter.new(Fluent::Plugin::JqTransformerFilter).configure(conf).tap { |d| d.instance.start }
   end
 end

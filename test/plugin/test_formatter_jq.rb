@@ -7,6 +7,10 @@ class JqFormatterTest < Test::Unit::TestCase
     Fluent::Test.setup
   end
 
+  teardown do
+    @driver.instance.shutdown if @driver
+  end
+
   test "it should require jq parameter" do
     assert_raise(Fluent::ConfigError) { create_driver '' }
   end
@@ -48,6 +52,6 @@ class JqFormatterTest < Test::Unit::TestCase
   private
 
   def create_driver(conf)
-    Fluent::Test::Driver::Formatter.new(Fluent::Plugin::JqFormatter).configure(conf)
+    @driver = Fluent::Test::Driver::Formatter.new(Fluent::Plugin::JqFormatter).configure(conf).tap { |d| d.instance.start }
   end
 end

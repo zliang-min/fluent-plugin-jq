@@ -4,7 +4,7 @@ LABEL maintainer="Zhimin (Gimi) Liang (https://github.com/Gimi)"
 COPY . /tmp/fluent-plugin-jq/
 
 RUN apk update \
- && apk add --no-cache jq-dev \
+ && apk add --no-cache jq \
  && apk add --no-cache --virtual .build-deps \
         build-base \
         git \

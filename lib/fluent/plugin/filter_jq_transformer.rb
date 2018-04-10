@@ -15,39 +15,25 @@
 # limitations under the License.
 
 require "fluent/plugin/filter"
+require "fluent/plugin/jq_mixin"
 
 module Fluent
   module Plugin
     class JqTransformerFilter < Fluent::Plugin::Filter
       Fluent::Plugin.register_filter("jq_transformer", self)
 
-      desc 'The jq filter used to transform the input. The result of the filter should return an object.'
-      config_param :jq, :string
+      include JqMixin
 
-      def initialize
-	super
-	require "jq"
-      end
-
-      def configure(conf)
-	super
-	@jq_filter = JQ::Core.new @jq
-      rescue JQ::Error
-	raise Fluent::ConfigError, "Could not parse jq filter: #{@jq}, error: #{$!.message}"
-      end
+      config_set_desc :jq, 'The jq filter used to transform the input. The result of the filter should return an object.'
 
       def filter(tag, time, record)
-	new_record = [].tap { |buf|
-	  @jq_filter.update(MultiJson.dump(tag: tag, time: time, record: record), false) { |r|
-	    buf << MultiJson.load("[#{r}]").first
-	  }
-	}.first
+	new_record = jq_transform tag: tag, time: time, record: record
 	return new_record if new_record.is_a?(Hash)
 
 	log.error "jq filter #{@jq} did not return a hash, skip this record."
 	nil
-      rescue JQ::Error
-	log.error "Failed to transform #{MultiJson.dump record} with #{@jq}, error: #{$!.message}"
+      rescue JqError
+	log.error "Filter failed with #{@jq}#{log.on_debug { ' on ' + MultiJson.dump(tag: tag, time: time, record: record) }}, error: #{$!.message}"
 	nil
       end
     end

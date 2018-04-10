@@ -9,6 +9,10 @@ class JqParserTest < Test::Unit::TestCase
     Fluent::Test.setup
   end
 
+  teardown do
+    @driver.instance.shutdown if @driver
+  end
+
   test "it should require jq" do
     assert_raise(Fluent::ConfigError) { create_driver '' }
   end
@@ -39,6 +43,6 @@ class JqParserTest < Test::Unit::TestCase
   private
 
   def create_driver(conf)
-    Fluent::Test::Driver::Parser.new(Fluent::Plugin::JqParser).configure(conf)
+    @driver = Fluent::Test::Driver::Parser.new(Fluent::Plugin::JqParser).configure(conf).tap { |d| d.instance.start }
   end
 end

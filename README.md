@@ -13,7 +13,7 @@ A collection of [Fluentd](https://fluentd.org/) plugins use [jq](https://stedola
 
 See also: [Plugin Management](https://docs.fluentd.org/v1.0/articles/plugin-management).
 
-Before you install this plugin, please make sure that `libjq` has been installed on your machine. For example, it's called `jq-dev` on alpine linux; while on debian, and ubuntu, you will find it as the `libjq-dev` package.
+Before you install this plugin, please make sure the `jq` command line tool has been installed on your machine. Plugins defined in this gem will call the `jq` command to make the transformation.
 
 ### RubyGems
 
@@ -73,7 +73,7 @@ This must be `jq`.
 
 ##### jq (string) (required)
 
-The jq filter for formatting income events. The result of the program should only return one item of any kind (a string, an array, an object, etc.). If it returns multiple items, only the first will be used.
+The jq filter for formatting income events. The returned result should be a string, if not, it will be encoded to a JSON representation in a string.
 
 ##### on_error (enum) (optional)
 

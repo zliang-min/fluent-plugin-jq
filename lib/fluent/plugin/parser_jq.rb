@@ -15,40 +15,26 @@
 # limitations under the License.
 
 require "fluent/plugin/parser"
+require 'fluent/plugin/jq_mixin'
 
 module Fluent
   module Plugin
     class JqParser < Fluent::Plugin::Parser
       Fluent::Plugin.register_parser("jq", self)
 
-      desc 'The jq filter used to format the input. The result of the filter must return an object.'
-      config_param :jq, :string
+      include JqMixin
 
-      def initialize
-	super
-	require "jq"
-      end
-
-      def configure(conf)
-	super
-	@jq_filter = JQ::Core.new @jq
-      rescue JQ::Error
-	raise Fluent::ConfigError, "Could not parse jq filter: #{@jq}, error: #{$!.message}"
-      end
+      config_set_desc :jq, 'The jq filter used to format the input. The result of the filter must return an object.'
 
       def parse(text)
-	record = [].tap { |buf|
-	  @jq_filter.update(MultiJson.dump(text), false) { |r|
-	    buf << MultiJson.load("[#{r}]").first
-	  }
-	}.first
+	record = jq_transform text
 	if record.is_a?(Hash)
 	  yield parse_time(record), record
 	else
 	  log.error "jq filter #{@jq} did not return a hash, skip this record."
 	end
-      rescue JQ::Error
-	log.error "Failed to parse #{text} with #{@jq}, error: #{$!.message}"
+      rescue JqError
+	log.error "Parse failed with #{@jq}#{log.on_debug {' on ' + text}}, error: #{$!.message}"
 	nil
       end
     end

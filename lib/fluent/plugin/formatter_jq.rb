@@ -15,53 +15,39 @@
 # limitations under the License.
 
 require "fluent/plugin/formatter"
+require "fluent/plugin/jq_mixin"
 
 module Fluent
   module Plugin
     class JqFormatter < Fluent::Plugin::Formatter
       Fluent::Plugin.register_formatter("jq", self)
 
-      desc 'The jq program used to format income events. The result of the program should only return one item of any kind (a string, an array, an object, etc.). If it returns multiple items, only the first will be used.'
-      config_param :jq, :string, default: nil
+      include JqMixin
 
-      desc 'The jq program used to format income events. The result of the program should only return one item of any kind (a string, an array, an object, etc.). If it returns multiple items, only the first will be used. DEPRECATED.'
-      config_param :jq_program, :string, deprecated: 'use jq instead.', default: nil
+      config_set_desc :jq, 'The jq filter used to format income events. If the result returned from the filter is not a string, it will be encoded as a JSON string.'
 
       desc 'Defines the behavior on error happens when formatting an event. "skip" will skip the event; "ignore" will ignore the error and return the JSON representation of the original event; "raise_error" will raise a RuntimeError.'
       config_param :on_error, :enum, list: [:skip, :ignore, :raise_error], default: :ignore
 
       def initialize
 	super
-	require "jq"
-      end
-
-      def configure(conf)
-	super
-
-	@jq = @jq_program unless @jq
-	raise Fluent::ConfigError, "jq is required." unless @jq
-
-	@jq_filter = JQ::Core.new @jq
-      rescue JQ::Error
-	raise Fluent::ConfigError, "Could not parse jq filter #{@jq}, error: #{$!.message}"
       end
 
       def format(tag, time, record)
-	item = [].tap { |buf|
-	  @jq_filter.update(MultiJson.dump(record), false) { |r|
-	    buf << MultiJson.load("[#{r}]").first
-	  }
-	}.first
-	return item if item.instance_of?(String)
-	MultiJson.dump item
-      rescue JQ::Error
-	msg = "Failed to format #{record.to_json} with #{@jq}, error: #{$!.message}"
+	item = jq_transform record
+	if item.instance_of?(String)
+	  item
+	else
+	  MultiJson.dump item
+	end
+      rescue JqError
+	msg = "Format failed with #{@jq}#{log.on_debug { ' on ' + MultiJson.dump(record) }}, error: #{$!.message}"
 	log.error msg
 	case @on_error
 	when :skip
 	  return ''
 	when :ignore
-	  return record.to_json
+	  return MultiJson.dump(record)
 	when :raise_error
 	  raise msg
 	end

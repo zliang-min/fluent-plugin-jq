@@ -15,29 +15,19 @@
 # limitations under the License.
 
 require 'fluent/plugin/output'
+require 'fluent/plugin/jq_mixin'
 
 module Fluent::Plugin
   class JqOutput < Output
     Fluent::Plugin.register_output('jq', self)
     helpers :event_emitter
 
-    desc 'The jq filter used to transform the input. The result of the filter should return an object.'
-    config_param :jq, :string
+    include JqMixin
+
+    config_set_desc :jq, 'The jq filter used to transform the input. If the filter returns an array, each object in the array will be a new record.'
 
     desc 'The prefix to be removed from the input tag when outputting a new record.'
     config_param :remove_tag_prefix, :string, default: ''
-
-    def initialize
-      super
-      require "jq"
-    end
-
-    def configure(conf)
-      super
-      @jq_filter = JQ::Core.new @jq
-    rescue JQ::Error
-      raise Fluent::ConfigError, "Could not parse jq filter: #{@jq}, error: #{$!.message}"
-    end
 
     def multi_workers_ready?
       true
@@ -47,14 +37,11 @@ module Fluent::Plugin
       new_es = Fluent::MultiEventStream.new
       es.each do |time, record|
 	begin
-	  @jq_filter.update(MultiJson.dump(tag: tag, time: time, record: record), false) { |r|
-	    # the filter could return an array
-	    new_records = [MultiJson.load("[#{r}]").first]
-	    new_records.flatten!
-	    new_records.each { |new_record| new_es.add time, new_record }
-	  }
-	rescue JQ::Error
-	  log.error "Failed to transform #{MultiJson.dump record} with #{@jq}, error: #{$!.message}"
+	  new_records = jq_transform tag: tag, time: time, record: record
+	  new_records = [new_records] unless new_records.is_a?(Array)
+	  new_records.each { |new_record| new_es.add time, new_record }
+	rescue JqError
+	  log.error "Process failed with #{@jq}#{log.on_debug {' on ' + MultiJson.dump(record)}}, error: #{$!.message}"
 	end
       end
 
