@@ -22,6 +22,7 @@ module JqMixin
   def start
     super
     @jq_process = start_process
+    @lock = Thread::Mutex.new
   end
 
   def shutdown
@@ -34,8 +35,10 @@ module JqMixin
   end
 
   def jq_transform(object)
-    @jq_process.puts MultiJson.dump(object)
-    result = @jq_process.gets
+    result = @lock.synchronize do
+      @jq_process.puts MultiJson.dump(object)
+      @jq_process.gets
+    end
     MultiJson.load result
   rescue MultiJson::ParseError
     raise JqError.new(result)
